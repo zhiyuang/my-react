@@ -1,3 +1,4 @@
+import { beginWork } from './beginWork';
 import { FiberNode, FiberRootNode } from './fiber';
 import { WorkTag } from './workTags';
 
@@ -46,7 +47,7 @@ class WorkLoop {
 			}
 		} while (true);
 
-		console.log('render 结束', root);
+		console.log('render 结束', root, this.workInProgress);
 	}
 
 	prepareFreshStack(root: FiberRootNode) {

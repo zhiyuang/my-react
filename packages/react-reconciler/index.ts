@@ -26,7 +26,7 @@ export class Reconciler {
 		container: any /** Reconciler 是和平台无关的，这里 container 可以是 HTMLElement，也可以是 React Native 的元素 */
 	) {
 		console.log(container);
-		const hostRootFiber = new FiberNode(WorkTag.HostRoot, null);
+		const hostRootFiber = new FiberNode(WorkTag.HostRoot, {}, null);
 		initializeUpdateQueue(hostRootFiber);
 		const root = new FiberRootNode(container, hostRootFiber);
 		hostRootFiber.stateNode = root;
@@ -38,6 +38,7 @@ export class Reconciler {
 		const update = createUpdate(element);
 		enqueueUpdate(hostRootFiber, update);
 		const workLoop = new WorkLoop();
+		workLoop.scheduleUpdateOnFiber(hostRootFiber);
+		console.log(3333333, hostRootFiber);
 	}
 }
-

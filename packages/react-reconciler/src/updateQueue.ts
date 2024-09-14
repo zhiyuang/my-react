@@ -31,3 +31,25 @@ export const initializeUpdateQueue = (fiber: FiberNode) => {
 		}
 	};
 };
+
+export const processUpdateQueue = (fiber: FiberNode) => {
+	const updateQueue = fiber.updateQueue;
+	let newState = null;
+	if (updateQueue) {
+		const pending = updateQueue.shared.pending;
+		const pendingUpdate = pending;
+		updateQueue.shared.pending = null;
+
+		if (pendingUpdate !== null) {
+			const action = pendingUpdate.action;
+			if (typeof action === 'function') {
+				newState = action();
+			} else {
+				newState = action;
+			}
+		}
+	} else {
+		console.log(123);
+	}
+	fiber.memoizedState = newState;
+};

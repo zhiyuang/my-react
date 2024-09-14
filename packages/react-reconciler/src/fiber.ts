@@ -1,4 +1,4 @@
-import { Props } from 'shared/ReactTypes';
+import { Key, Props, ReactElement } from 'shared/ReactTypes';
 import { Flags } from './fiberFlags';
 import { UpdateQueue } from './updateQueue';
 import { WorkTag } from './workTags';
@@ -18,7 +18,7 @@ export class FiberRootNode {
 
 export class FiberNode {
 	public tag: WorkTag;
-	public key?: string;
+	public key: Key | null;
 	public pendingProps: Props;
 	public stateNode: StateNode;
 	public updateQueue: UpdateQueue | null;
@@ -32,7 +32,7 @@ export class FiberNode {
 	public memoizedProps: Props | null;
 	public memoizedState?: any;
 
-	constructor(tag: WorkTag, pendingProps: Props, key?: string) {
+	constructor(tag: WorkTag, pendingProps: Props, key: Key | null) {
 		this.tag = tag;
 		this.pendingProps = pendingProps;
 		this.key = key;
@@ -68,5 +68,18 @@ export class FiberNode {
 		wip.memoizedState = this.memoizedState;
 
 		return wip;
+	}
+
+	static createFiberFromElement(element: ReactElement): FiberNode {
+		const { type, key, props } = element;
+		let fiberTag: WorkTag = WorkTag.FunctionComponent;
+
+		if (typeof type === 'string') {
+			fiberTag = WorkTag.HostComponent;
+		}
+		const fiber = new FiberNode(fiberTag, props, key);
+		fiber._type = type;
+
+		return fiber;
 	}
 }

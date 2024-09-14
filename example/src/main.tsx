@@ -1,8 +1,10 @@
-import {createRoot} from 'react-dom'
+import { createRoot } from 'react-dom';
 
-
-const comp = <div>hello world</div>
-console.log(comp)
-const renderer = createRoot(document.getElementById("root"));
-renderer.render();
-
+const comp = (
+	<div>
+		<a>hello world</a>
+	</div>
+);
+console.log(comp);
+const renderer = createRoot(document.getElementById('root'));
+renderer.render(comp);
