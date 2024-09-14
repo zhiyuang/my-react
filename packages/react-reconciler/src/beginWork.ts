@@ -11,6 +11,8 @@ export const beginWork = (workInProgress: FiberNode) => {
 			return updateHostRoot(workInProgress);
 		case WorkTag.HostComponent:
 			return updateHostComponent(workInProgress);
+		case WorkTag.HostText:
+			return null;
 		default:
 			return null;
 	}

@@ -10,8 +10,8 @@ const appendAllChildren = (
 ) => {
 	let node = workInProgress.child;
 	while (node !== null) {
-    console.log(22, parent, node, workInProgress)
-		if (node.tag === WorkTag.HostComponent) {
+		console.log(22, parent, node, workInProgress);
+		if (node.tag === WorkTag.HostComponent || node.tag === WorkTag.HostText) {
 			hostConfig.appendInitialChild(parent, node.stateNode);
 		} else if (node.child !== null) {
 			// 这里是什么原因
@@ -55,6 +55,7 @@ export const completeWork = (
 	workInProgress: FiberNode,
 	hostConfig: HostConfig
 ) => {
+	const newProps = workInProgress.pendingProps;
 	switch (workInProgress.tag) {
 		case WorkTag.HostComponent:
 			const instance = hostConfig.createInstance(workInProgress._type);
@@ -66,6 +67,11 @@ export const completeWork = (
 			bubbleProperties(workInProgress);
 			return null;
 		case WorkTag.HostRoot:
+			bubbleProperties(workInProgress);
+			return null;
+		case WorkTag.HostText:
+			const textInstance = hostConfig.createTextInstance(newProps.content);
+			workInProgress.stateNode = textInstance;
 			bubbleProperties(workInProgress);
 			return null;
 		default:

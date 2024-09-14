@@ -2,6 +2,7 @@ import { ReactElement } from 'shared/ReactTypes';
 import { FiberNode } from './fiber';
 import { Flags } from './fiberFlags';
 import { REACT_ELEMENT_TYPE } from 'shared/ReactSymbols';
+import { WorkTag } from './workTags';
 
 function ChildReconciler(shouldTrackEffect: boolean) {
 	function reconcileSingleElement(
@@ -14,6 +15,17 @@ function ChildReconciler(shouldTrackEffect: boolean) {
 		fiber._return = returnFiber;
 		console.log(999999, fiber);
 		return fiber;
+	}
+
+	function reconcileSingleTextNode(
+		returnFiber: FiberNode,
+		currentFirstChild: FiberNode | null,
+		content: string
+	) {
+		currentFirstChild;
+		const created = new FiberNode(WorkTag.HostText, { content }, null);
+		created._return = returnFiber;
+		return created;
 	}
 
 	function placeSingleChild(fiber: FiberNode) {
@@ -35,6 +47,11 @@ function ChildReconciler(shouldTrackEffect: boolean) {
 						reconcileSingleElement(returnFiber, currentFirstChild, newChild)
 					);
 			}
+		}
+		if (typeof newChild === 'string') {
+			return placeSingleChild(
+				reconcileSingleTextNode(returnFiber, currentFirstChild, newChild)
+			);
 		}
 		return null;
 	}
