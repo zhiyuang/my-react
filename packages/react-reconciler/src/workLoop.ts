@@ -1,11 +1,15 @@
+import { HostConfig } from './hostConfig';
 import { beginWork } from './beginWork';
 import { FiberNode, FiberRootNode } from './fiber';
 import { WorkTag } from './workTags';
+import { completeWork } from './completeWork';
 
 class WorkLoop {
 	workInProgress: FiberNode | null;
-	constructor() {
+	hostConfig: HostConfig;
+	constructor(hostConfig: HostConfig) {
 		this.workInProgress = null;
+		this.hostConfig = hostConfig;
 	}
 
 	scheduleUpdateOnFiber(fiber: FiberNode) {
@@ -65,10 +69,32 @@ class WorkLoop {
 		const next = beginWork(fiber);
 
 		if (next === null) {
-			this.workInProgress = null;
+			// beginWork 阶段结束了，进入 completeWork 阶段
+			this.completeUnitOfWork(fiber);
 		} else {
 			this.workInProgress = next;
 		}
+	}
+
+	completeUnitOfWork(fiber: FiberNode) {
+		let node: FiberNode | null = fiber;
+
+		do {
+			const next = completeWork(node, this.hostConfig);
+
+			if (next !== null) {
+				this.workInProgress = next;
+				return;
+			}
+
+			const sibling = node?.sibling;
+			if (sibling) {
+				this.workInProgress = next;
+				return;
+			}
+			node = node._return;
+			this.workInProgress = node;
+		} while (node !== null);
 	}
 }
 

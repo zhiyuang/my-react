@@ -6,14 +6,9 @@ import {
 } from './src/updateQueue';
 import WorkLoop from './src/workLoop';
 import { WorkTag } from './src/workTags';
+import { HostConfig } from './src/hostConfig';
 export { FiberRootNode } from './src/fiber';
-
-export interface HostConfig {
-	createTextInstance: (content: string) => any;
-	createInstance: (_type: string) => any;
-	appendInitialChild: (parent: any, child: any) => any;
-	appendChildToContainer: (child: any, parent: any) => any;
-}
+export { type HostConfig } from './src/hostConfig';
 
 export class Reconciler {
 	hostConfig: HostConfig;
@@ -37,7 +32,7 @@ export class Reconciler {
 		const hostRootFiber = root.current as FiberNode;
 		const update = createUpdate(element);
 		enqueueUpdate(hostRootFiber, update);
-		const workLoop = new WorkLoop();
+		const workLoop = new WorkLoop(this.hostConfig);
 		workLoop.scheduleUpdateOnFiber(hostRootFiber);
 		console.log(3333333, hostRootFiber);
 	}

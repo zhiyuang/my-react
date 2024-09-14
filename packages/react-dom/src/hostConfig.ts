@@ -11,6 +11,7 @@ const ReactDomHostConfig: HostConfig = {
 
 	appendInitialChild(parent, child) {
 		console.log('append initial child', parent, child);
+		parent.appendChild(child);
 	},
 
 	appendChildToContainer(child, parent) {
