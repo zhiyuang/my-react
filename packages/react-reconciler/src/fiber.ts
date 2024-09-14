@@ -8,11 +8,12 @@ type StateNode = any;
 export class FiberRootNode {
 	public container: any;
 	public current: FiberNode | null;
-	public finished_work?: FiberNode;
+	public finishedWork: FiberNode | null;
 
 	constructor(container: any, current: FiberNode) {
 		this.container = container;
 		this.current = current;
+		this.finishedWork = null;
 	}
 }
 
@@ -31,6 +32,7 @@ export class FiberNode {
 	public subtreeFlags: Flags;
 	public memoizedProps: Props | null;
 	public memoizedState?: any;
+	public finishedWork: FiberNode | null;
 
 	constructor(tag: WorkTag, pendingProps: Props, key: Key | null) {
 		this.tag = tag;
@@ -45,6 +47,7 @@ export class FiberNode {
 		this.child = null;
 		this.alternate = null;
 		this.memoizedProps = null;
+		this.finishedWork = null;
 	}
 
 	createWorkInProgress(pendingProps: Props) {
