@@ -86,7 +86,7 @@ importers:
         version: file:dist/node_modules/react
       react-dom:
         specifier: file://../dist/node_modules/react-dom
-        version: file:dist/node_modules/react-dom
+        version: file:dist/node_modules/react-dom(react@0.0.0)
       vite-plugin-wasm:
         specifier: ^3.3.0
         version: 3.3.0(vite@5.4.4)
@@ -3696,7 +3696,12 @@ packages:
     name: react
     dev: false
 
-  file:dist/node_modules/react-dom:
+  file:dist/node_modules/react-dom(react@0.0.0):
     resolution: {directory: dist/node_modules/react-dom, type: directory}
+    id: file:dist/node_modules/react-dom
     name: react-dom
+    peerDependencies:
+      react: 0.0.0
+    dependencies:
+      react: file:dist/node_modules/react
     dev: false

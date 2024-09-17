@@ -1,6 +1,5 @@
 import { Key, Props, ReactElement } from 'shared/ReactTypes';
 import { Flags } from './fiberFlags';
-import { UpdateQueue } from './updateQueue';
 import { WorkTag } from './workTags';
 
 type StateNode = any;
@@ -22,7 +21,7 @@ export class FiberNode {
 	public key: Key | null;
 	public pendingProps: Props;
 	public stateNode: StateNode;
-	public updateQueue: UpdateQueue | null;
+	public updateQueue: unknown;
 	public _return: FiberNode | null;
 	public sibling: FiberNode | null;
 	public child: FiberNode | null;

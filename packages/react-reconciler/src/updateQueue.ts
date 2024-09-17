@@ -1,27 +1,36 @@
+import { Action } from 'shared/ReactTypes';
 import { FiberNode } from './fiber';
 
-type UpdateAction = any;
-
-export interface Update {
-	action: UpdateAction;
+export interface Update<State> {
+	action: Action<State>;
 }
 
-export interface UpdateQueue {
+export interface UpdateQueue<State> {
 	shared: {
-		pending: Update | null;
+		pending: Update<State> | null;
 	};
 }
 
-export const createUpdate = (action: any): Update => {
+export const createUpdate = <State>(action: Action<State>): Update<State> => {
 	return {
 		action
 	};
 };
 
-export const enqueueUpdate = (fiber: FiberNode, update: Update) => {
-	if (fiber.updateQueue) {
-		fiber.updateQueue.shared.pending = update;
-	}
+export const enqueueUpdate = <Action>(
+	updateQueue: UpdateQueue<Action>,
+	update: Update<Action>
+) => {
+	updateQueue.shared.pending = update;
+};
+
+export const createUpdateQueue = <Action>() => {
+	const updateQueue: UpdateQueue<Action> = {
+		shared: {
+			pending: null
+		}
+	};
+	return updateQueue;
 };
 
 export const initializeUpdateQueue = (fiber: FiberNode) => {
@@ -32,18 +41,20 @@ export const initializeUpdateQueue = (fiber: FiberNode) => {
 	};
 };
 
-export const processUpdateQueue = (fiber: FiberNode) => {
-	const updateQueue = fiber.updateQueue;
-	let newState = null;
+export const processUpdateQueue = <State>(fiber: FiberNode) => {
+	const updateQueue = fiber.updateQueue as UpdateQueue<State>;
+	let newState = fiber.memoizedState;
 	if (updateQueue) {
 		const pending = updateQueue.shared.pending;
+		console.log(889, pending?.action);
 		const pendingUpdate = pending;
 		updateQueue.shared.pending = null;
 
 		if (pendingUpdate !== null) {
 			const action = pendingUpdate.action;
-			if (typeof action === 'function') {
-				newState = action();
+			if (action instanceof Function) {
+				console.log(888, fiber, action);
+				newState = action(newState);
 			} else {
 				newState = action;
 			}

@@ -1,12 +1,14 @@
 import { FiberNode, FiberRootNode } from './src/fiber';
 import {
 	createUpdate,
+	createUpdateQueue,
 	enqueueUpdate,
-	initializeUpdateQueue
+	UpdateQueue
 } from './src/updateQueue';
 import WorkLoop from './src/workLoop';
 import { WorkTag } from './src/workTags';
 import { HostConfig } from './src/hostConfig';
+import { ReactElement } from 'shared/ReactTypes';
 export { FiberRootNode } from './src/fiber';
 export { type HostConfig } from './src/hostConfig';
 
@@ -22,7 +24,7 @@ export class Reconciler {
 	) {
 		console.log(container);
 		const hostRootFiber = new FiberNode(WorkTag.HostRoot, {}, null);
-		initializeUpdateQueue(hostRootFiber);
+		hostRootFiber.updateQueue = createUpdateQueue<ReactElement>();
 		const root = new FiberRootNode(container, hostRootFiber);
 		hostRootFiber.stateNode = root;
 		return root;
@@ -31,7 +33,10 @@ export class Reconciler {
 	updateContainer(element: any, root: FiberRootNode) {
 		const hostRootFiber = root.current as FiberNode;
 		const update = createUpdate(element);
-		enqueueUpdate(hostRootFiber, update);
+		enqueueUpdate(
+			hostRootFiber.updateQueue as UpdateQueue<ReactElement>,
+			update
+		);
 		const workLoop = new WorkLoop(this.hostConfig);
 		workLoop.scheduleUpdateOnFiber(hostRootFiber);
 		console.log(3333333, hostRootFiber);

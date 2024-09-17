@@ -3,6 +3,7 @@ import { FiberNode } from './fiber';
 import { WorkTag } from './workTags';
 import { processUpdateQueue } from './updateQueue';
 import { mountChildFibers, reconcileChildFibers } from './childFiber';
+import { renderWithHooks } from './fiberHooks';
 
 export const beginWork = (workInProgress: FiberNode) => {
 	console.log(222222222, workInProgress);
@@ -11,6 +12,8 @@ export const beginWork = (workInProgress: FiberNode) => {
 			return updateHostRoot(workInProgress);
 		case WorkTag.HostComponent:
 			return updateHostComponent(workInProgress);
+		case WorkTag.FunctionComponent:
+			return updateFunctionComponent(workInProgress);
 		case WorkTag.HostText:
 			return null;
 		default:
@@ -29,6 +32,12 @@ const updateHostRoot = (workInProgress: FiberNode) => {
 const updateHostComponent = (workInProgress: FiberNode) => {
 	const nextProps = workInProgress.pendingProps;
 	const nextChildren = nextProps.children;
+	reconcileChildren(workInProgress, nextChildren);
+	return workInProgress.child;
+};
+
+const updateFunctionComponent = (workInProgress: FiberNode) => {
+	const nextChildren = renderWithHooks(workInProgress);
 	reconcileChildren(workInProgress, nextChildren);
 	return workInProgress.child;
 };

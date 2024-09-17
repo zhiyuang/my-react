@@ -1,9 +1,19 @@
-
-
+import { useState } from "react"
 
 function App() {
   return (
-      <div>a</div>
+    <div>
+      <Comp>{name}</Comp>
+    </div>
+  )
+}
+
+function Comp({children}) {
+  const [name, setName] = useState('hello')
+  return (
+    <span>
+      <i>{`Hello world, ${name}`}</i>
+    </span>
   )
 }
 

@@ -74,6 +74,9 @@ export const completeWork = (
 			workInProgress.stateNode = textInstance;
 			bubbleProperties(workInProgress);
 			return null;
+		case WorkTag.FunctionComponent:
+			bubbleProperties(workInProgress);
+			return null;
 		default:
 			console.error('暂时还未处理');
 			return null;
