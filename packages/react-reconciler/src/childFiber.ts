@@ -13,7 +13,7 @@ function ChildReconciler(shouldTrackEffect: boolean) {
 		currentFirstChild;
 		const fiber = FiberNode.createFiberFromElement(element);
 		fiber._return = returnFiber;
-		console.log(999999, fiber);
+		// console.log(999999, fiber);
 		return fiber;
 	}
 

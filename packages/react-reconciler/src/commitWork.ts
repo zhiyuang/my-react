@@ -67,6 +67,7 @@ const appendPlacementNodeIntoContainer = (
 ) => {
 	if (fiber.tag === WorkTag.HostComponent || fiber.tag === WorkTag.HostText) {
 		hostConfig.appendChildToContainer(fiber.stateNode, parent);
+		return;
 	}
 
 	const child = fiber.child;
