@@ -1,6 +1,7 @@
 import { useState } from "react"
 
 function App() {
+  const [name, setName] = useState('hello')
   return (
     <div>
       <Comp>{name}</Comp>
@@ -9,10 +10,9 @@ function App() {
 }
 
 function Comp({children}) {
-  const [name, setName] = useState('hello')
   return (
     <span>
-      <i>{`Hello world, ${name}`}</i>
+      <i>{`Hello world, ${children}`}</i>
     </span>
   )
 }

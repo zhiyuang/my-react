@@ -8,4 +8,4 @@ import App from './App';
 // );
 // console.log(comp);
 const renderer = createRoot(document.getElementById('root'));
-renderer.render(App);
+renderer.render(<App />);
