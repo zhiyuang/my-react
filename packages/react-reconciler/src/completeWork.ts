@@ -51,15 +51,22 @@ const bubbleProperties = (completeWork: FiberNode) => {
 	completeWork.subtreeFlags |= subtreeFlags;
 };
 
+const markUpdate = (fiber: FiberNode) => {
+	fiber.flags |= Flags.Update;
+};
+
 export const completeWork = (workInProgress: FiberNode) => {
 	const newProps = workInProgress.pendingProps;
+	const current = workInProgress.alternate;
 	switch (workInProgress.tag) {
 		case WorkTag.HostComponent:
-			const instance = createInstance(workInProgress._type);
-
-			appendAllChildren(instance, workInProgress);
-
-			workInProgress.stateNode = instance;
+			if (current !== null && workInProgress.stateNode) {
+				// TODO 更新元素属性
+			} else {
+				const instance = createInstance(workInProgress._type);
+				appendAllChildren(instance, workInProgress);
+				workInProgress.stateNode = instance;
+			}
 
 			bubbleProperties(workInProgress);
 			return null;
@@ -67,8 +74,16 @@ export const completeWork = (workInProgress: FiberNode) => {
 			bubbleProperties(workInProgress);
 			return null;
 		case WorkTag.HostText:
-			const textInstance = createTextInstance(newProps.content);
-			workInProgress.stateNode = textInstance;
+			if (current !== null && workInProgress.stateNode) {
+				const oldText = current.memoizedProps?.content;
+				const newText = newProps.content;
+				if (oldText !== newText) {
+					markUpdate(workInProgress);
+				}
+			} else {
+				const textInstance = createTextInstance(newProps.content);
+				workInProgress.stateNode = textInstance;
+			}
 			bubbleProperties(workInProgress);
 			return null;
 		case WorkTag.FunctionComponent:

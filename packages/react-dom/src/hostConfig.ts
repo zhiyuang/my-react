@@ -19,3 +19,14 @@ export const appendChildToContainer = (child: Instance, parent: Container) => {
 	console.log('append child to container', child, parent);
 	parent.appendChild(child);
 };
+
+export const removeChild = (child: Instance, container: Container) => {
+	container.removeChild(child);
+};
+
+export const commitTextUpdate = (
+	textInstance: TextInstance,
+	content: string
+) => {
+	textInstance.nodeValue = content;
+};

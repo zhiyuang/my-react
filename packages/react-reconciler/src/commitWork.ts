@@ -1,6 +1,6 @@
 import { FiberNode, FiberRootNode } from './fiber';
 import { Flags, MutationMask } from './fiberFlags';
-import { appendChildToContainer } from './hostConfig';
+import { appendChildToContainer, commitTextUpdate, Container, removeChild } from './hostConfig';
 import { WorkTag } from './workTags';
 
 let nextEffect: FiberNode | null = null;
@@ -38,20 +38,35 @@ const commitMutationEffectsOnFiber = (finishedWork: FiberNode) => {
 		commitPlacement(finishedWork);
 		finishedWork.flags &= ~Flags.Placement;
 	}
+	if ((flags & Flags.ChildDeletion) !== Flags.NoFlags) {
+		const deletions = finishedWork.deletions;
+
+		if (deletions !== null) {
+			deletions.forEach((childToDelete) => {
+				commitDeletion(childToDelete);
+			});
+		}
+		finishedWork.flags &= ~Flags.ChildDeletion;
+	}
+	if ((flags & Flags.Update) !== Flags.NoFlags) {
+		commitUpdate(finishedWork);
+		finishedWork.flags &= ~Flags.Update;
+	}
+};
+
+const commitUpdate = (finishedWork: FiberNode) => {
+	switch (finishedWork.tag) {
+		case WorkTag.HostText:
+			const newContent = finishedWork.pendingProps.content;
+			return commitTextUpdate(finishedWork.stateNode, newContent);
+	}
+	console.error('还没支持');
 };
 
 const commitPlacement = (finishedWork: FiberNode) => {
 	const hostParent = getHostParent(finishedWork) as FiberNode;
-	let parentStateNode;
-	switch (hostParent.tag) {
-		case WorkTag.HostRoot:
-			parentStateNode = (hostParent.stateNode as FiberRootNode).container;
-			break;
-		case WorkTag.HostComponent:
-			parentStateNode = hostParent.stateNode;
-	}
 
-	appendPlacementNodeIntoContainer(finishedWork, parentStateNode);
+	appendPlacementNodeIntoContainer(finishedWork, hostParent);
 };
 
 const appendPlacementNodeIntoContainer = (fiber: FiberNode, parent: any) => {
@@ -77,10 +92,83 @@ const getHostParent = (fiber: FiberNode) => {
 
 	while (parent) {
 		const parentTag = parent.tag;
-		if (parentTag === WorkTag.HostComponent || parentTag === WorkTag.HostRoot) {
-			return parent;
+		if (parentTag === WorkTag.HostComponent) {
+			return parent.stateNode as Container;
+		}
+		if (parentTag === WorkTag.HostRoot) {
+			return (parent.stateNode as FiberRootNode).container;
 		}
 		parent = parent._return;
 	}
 	return fiber;
 };
+
+// TODO: 还没研究
+/**
+ * 删除需要考虑：
+ * HostComponent：需要遍历他的子树，为后续解绑ref创造条件，HostComponent本身只需删除最上层节点即可
+ * FunctionComponent：effect相关hook的执行，并遍历子树
+ */
+function commitDeletion(childToDelete: FiberNode) {
+	let firstHostFiber: FiberNode;
+
+	commitNestedUnmounts(childToDelete, (unmountFiber) => {
+		switch (unmountFiber.tag) {
+			case WorkTag.HostComponent:
+				if (!firstHostFiber) {
+					firstHostFiber = unmountFiber;
+				}
+				// 解绑ref
+				return;
+			case WorkTag.HostText:
+				if (!firstHostFiber) {
+					firstHostFiber = unmountFiber;
+				}
+				return;
+			case WorkTag.FunctionComponent:
+				// effect相关操作
+				return;
+		}
+	});
+
+	// @ts-ignore
+	if (firstHostFiber) {
+		const hostParent = getHostParent(childToDelete) as Container;
+		removeChild(firstHostFiber.stateNode, hostParent);
+	}
+
+	childToDelete._return = null;
+	childToDelete.child = null;
+}
+
+function commitNestedUnmounts(
+	root: FiberNode,
+	onCommitUnmount: (unmountFiber: FiberNode) => void
+) {
+	let node = root;
+
+	while (true) {
+		onCommitUnmount(node);
+
+		if (node.child !== null) {
+			// 向下
+			node.child._return = node;
+			node = node.child;
+			continue;
+		}
+		if (node === root) {
+			// 终止条件
+			return;
+		}
+		while (node.sibling === null) {
+			// 向上
+			if (node._return === null || node._return === root) {
+				// 终止条件
+				return;
+			}
+			node = node._return;
+		}
+		node.sibling._return = node._return;
+		node = node.sibling;
+	}
+}

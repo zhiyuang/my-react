@@ -1,5 +1,6 @@
 import { Action } from 'shared/ReactTypes';
 import { FiberNode } from './fiber';
+import { Dispatch } from 'react/src/currentDispatcher';
 
 export interface Update<State> {
 	action: Action<State>;
@@ -9,6 +10,7 @@ export interface UpdateQueue<State> {
 	shared: {
 		pending: Update<State> | null;
 	};
+	dispatch: Dispatch<State> | null;
 }
 
 export const createUpdate = <State>(action: Action<State>): Update<State> => {
@@ -28,7 +30,8 @@ export const createUpdateQueue = <Action>() => {
 	const updateQueue: UpdateQueue<Action> = {
 		shared: {
 			pending: null
-		}
+		},
+		dispatch: null
 	};
 	return updateQueue;
 };
@@ -41,9 +44,11 @@ export const initializeUpdateQueue = (fiber: FiberNode) => {
 	};
 };
 
-export const processUpdateQueue = <State>(fiber: FiberNode) => {
-	const updateQueue = fiber.updateQueue as UpdateQueue<State>;
-	let newState = fiber.memoizedState;
+export const processUpdateQueue = <State>(
+	baseState: State,
+	updateQueue: UpdateQueue<State>,
+	fiber: FiberNode
+) => {
 	if (updateQueue) {
 		const pending = updateQueue.shared.pending;
 		console.log(889, pending?.action);
@@ -54,13 +59,13 @@ export const processUpdateQueue = <State>(fiber: FiberNode) => {
 			const action = pendingUpdate.action;
 			if (action instanceof Function) {
 				console.log(888, fiber, action);
-				newState = action(newState);
+				baseState = action(baseState);
 			} else {
-				newState = action;
+				baseState = action;
 			}
 		}
 	} else {
 		console.log(123);
 	}
-	fiber.memoizedState = newState;
+	return baseState;
 };

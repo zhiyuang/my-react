@@ -32,6 +32,8 @@ export class FiberNode {
 	public memoizedProps: Props | null;
 	public memoizedState?: any;
 	public finishedWork: FiberNode | null;
+	public deletions: FiberNode[] | null;
+	public index: number;
 
 	constructor(tag: WorkTag, pendingProps: Props, key: Key | null) {
 		this.tag = tag;
@@ -47,6 +49,10 @@ export class FiberNode {
 		this.alternate = null;
 		this.memoizedProps = null;
 		this.finishedWork = null;
+
+		this.deletions = null;
+
+		this.index = 0;
 	}
 
 	createWorkInProgress(pendingProps: Props) {
@@ -60,6 +66,10 @@ export class FiberNode {
 			this.alternate = wip;
 		} else {
 			wip.pendingProps = pendingProps;
+			wip.flags = Flags.NoFlags;
+			wip.subtreeFlags = Flags.NoFlags;
+			wip.deletions = null;
+			wip._type = this._type;
 		}
 
 		wip.updateQueue = this.updateQueue;
