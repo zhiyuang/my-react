@@ -1,8 +1,14 @@
 import { FiberNode } from './fiber';
 import sharedInternals from 'shared/internals';
 import { Dispatcher, Disptach } from 'react/src/currentDispatcher';
-import { createUpdate, createUpdateQueue, enqueueUpdate, UpdateQueue } from './updateQueue';
+import {
+	createUpdate,
+	createUpdateQueue,
+	enqueueUpdate,
+	UpdateQueue
+} from './updateQueue';
 import { Action } from 'shared/ReactTypes';
+import { scheduleUpdateOnFiber } from './workLoop';
 
 let workInProgressHook: Hook | null = null;
 let currentlyRenderingFiber: FiberNode | null = null;
@@ -78,8 +84,7 @@ function dispatchSetState<State>(
 ) {
 	const update = createUpdate(action);
 	enqueueUpdate(updateQueue, update);
-	fiber;
-	// scheduleUpdateOnFiber(fiber);
+	scheduleUpdateOnFiber(fiber);
 }
 
 const mountWorkInProgressHook = () => {

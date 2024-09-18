@@ -1,14 +1,11 @@
 import { FiberNode, FiberRootNode } from './fiber';
 import { Flags, MutationMask } from './fiberFlags';
-import { HostConfig } from './hostConfig';
+import { appendChildToContainer } from './hostConfig';
 import { WorkTag } from './workTags';
 
 let nextEffect: FiberNode | null = null;
 
-export const commitMutationEffects = (
-	finishedWork: FiberNode,
-	hostConfig: HostConfig
-) => {
+export const commitMutationEffects = (finishedWork: FiberNode) => {
 	nextEffect = finishedWork;
 
 	while (nextEffect !== null) {
@@ -21,7 +18,7 @@ export const commitMutationEffects = (
 			nextEffect = child;
 		} else {
 			up: while (nextEffect !== null) {
-				commitMutationEffectsOnFiber(nextEffect, hostConfig);
+				commitMutationEffectsOnFiber(nextEffect);
 				const sibling: FiberNode | null = nextEffect.sibling;
 
 				if (sibling !== null) {
@@ -34,19 +31,16 @@ export const commitMutationEffects = (
 	}
 };
 
-const commitMutationEffectsOnFiber = (
-	finishedWork: FiberNode,
-	hostConfig: HostConfig
-) => {
+const commitMutationEffectsOnFiber = (finishedWork: FiberNode) => {
 	const flags = finishedWork.flags;
 
 	if ((flags & Flags.Placement) !== Flags.NoFlags) {
-		commitPlacement(finishedWork, hostConfig);
+		commitPlacement(finishedWork);
 		finishedWork.flags &= ~Flags.Placement;
 	}
 };
 
-const commitPlacement = (finishedWork: FiberNode, hostConfig: HostConfig) => {
+const commitPlacement = (finishedWork: FiberNode) => {
 	const hostParent = getHostParent(finishedWork) as FiberNode;
 	let parentStateNode;
 	switch (hostParent.tag) {
@@ -57,26 +51,22 @@ const commitPlacement = (finishedWork: FiberNode, hostConfig: HostConfig) => {
 			parentStateNode = hostParent.stateNode;
 	}
 
-	appendPlacementNodeIntoContainer(finishedWork, parentStateNode, hostConfig);
+	appendPlacementNodeIntoContainer(finishedWork, parentStateNode);
 };
 
-const appendPlacementNodeIntoContainer = (
-	fiber: FiberNode,
-	parent: any,
-	hostConfig: HostConfig
-) => {
+const appendPlacementNodeIntoContainer = (fiber: FiberNode, parent: any) => {
 	if (fiber.tag === WorkTag.HostComponent || fiber.tag === WorkTag.HostText) {
-		hostConfig.appendChildToContainer(fiber.stateNode, parent);
+		appendChildToContainer(fiber.stateNode, parent);
 		return;
 	}
 
 	const child = fiber.child;
 	if (child !== null) {
-		appendPlacementNodeIntoContainer(child, parent, hostConfig);
+		appendPlacementNodeIntoContainer(child, parent);
 		let sibling = child.sibling;
 
 		while (sibling !== null) {
-			appendPlacementNodeIntoContainer(sibling, parent, hostConfig);
+			appendPlacementNodeIntoContainer(sibling, parent);
 			sibling = sibling.sibling;
 		}
 	}

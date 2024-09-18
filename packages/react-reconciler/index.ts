@@ -5,20 +5,13 @@ import {
 	enqueueUpdate,
 	UpdateQueue
 } from './src/updateQueue';
-import WorkLoop from './src/workLoop';
 import { WorkTag } from './src/workTags';
-import { HostConfig } from './src/hostConfig';
 import { ReactElement } from 'shared/ReactTypes';
+import { scheduleUpdateOnFiber } from './src/workLoop';
 export { FiberRootNode } from './src/fiber';
 export { type HostConfig } from './src/hostConfig';
 
 export class Reconciler {
-	hostConfig: HostConfig;
-
-	constructor(hostConfig: HostConfig) {
-		this.hostConfig = hostConfig;
-	}
-
 	createContainer(
 		container: any /** Reconciler 是和平台无关的，这里 container 可以是 HTMLElement，也可以是 React Native 的元素 */
 	) {
@@ -37,8 +30,7 @@ export class Reconciler {
 			hostRootFiber.updateQueue as UpdateQueue<ReactElement>,
 			update
 		);
-		const workLoop = new WorkLoop(this.hostConfig);
-		workLoop.scheduleUpdateOnFiber(hostRootFiber);
+		scheduleUpdateOnFiber(hostRootFiber);
 		console.log(3333333, hostRootFiber);
 	}
 }

@@ -1,18 +1,18 @@
 import { FiberNode } from './fiber';
 import { Flags } from './fiberFlags';
-import { HostConfig } from './hostConfig';
+import {
+	appendInitialChild,
+	createInstance,
+	createTextInstance
+} from './hostConfig';
 import { WorkTag } from './workTags';
 
-const appendAllChildren = (
-	parent: any,
-	workInProgress: FiberNode,
-	hostConfig: HostConfig
-) => {
+const appendAllChildren = (parent: any, workInProgress: FiberNode) => {
 	let node = workInProgress.child;
 	while (node !== null) {
 		console.log(22, parent, node, workInProgress);
 		if (node.tag === WorkTag.HostComponent || node.tag === WorkTag.HostText) {
-			hostConfig.appendInitialChild(parent, node.stateNode);
+			appendInitialChild(parent, node.stateNode);
 		} else if (node.child !== null) {
 			// 这里是什么原因
 			node.child._return = node;
@@ -51,16 +51,13 @@ const bubbleProperties = (completeWork: FiberNode) => {
 	completeWork.subtreeFlags |= subtreeFlags;
 };
 
-export const completeWork = (
-	workInProgress: FiberNode,
-	hostConfig: HostConfig
-) => {
+export const completeWork = (workInProgress: FiberNode) => {
 	const newProps = workInProgress.pendingProps;
 	switch (workInProgress.tag) {
 		case WorkTag.HostComponent:
-			const instance = hostConfig.createInstance(workInProgress._type);
+			const instance = createInstance(workInProgress._type);
 
-			appendAllChildren(instance, workInProgress, hostConfig);
+			appendAllChildren(instance, workInProgress);
 
 			workInProgress.stateNode = instance;
 
@@ -70,7 +67,7 @@ export const completeWork = (
 			bubbleProperties(workInProgress);
 			return null;
 		case WorkTag.HostText:
-			const textInstance = hostConfig.createTextInstance(newProps.content);
+			const textInstance = createTextInstance(newProps.content);
 			workInProgress.stateNode = textInstance;
 			bubbleProperties(workInProgress);
 			return null;
