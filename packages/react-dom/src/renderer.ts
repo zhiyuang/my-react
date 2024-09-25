@@ -1,4 +1,5 @@
 import { FiberRootNode, Reconciler } from 'react-reconciler';
+import { initEvent } from './SyntheticEvent';
 
 export default class Renderer {
 	private root: FiberRootNode;
@@ -10,6 +11,7 @@ export default class Renderer {
 	}
 
 	public render(element: any) {
+		initEvent(this.root.container, 'click');
 		this.reconciler.updateContainer(element, this.root);
 	}
 }

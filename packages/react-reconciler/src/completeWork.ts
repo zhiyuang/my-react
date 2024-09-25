@@ -63,7 +63,7 @@ export const completeWork = (workInProgress: FiberNode) => {
 			if (current !== null && workInProgress.stateNode) {
 				// TODO 更新元素属性
 			} else {
-				const instance = createInstance(workInProgress._type);
+				const instance = createInstance(workInProgress._type, newProps);
 				appendAllChildren(instance, workInProgress);
 				workInProgress.stateNode = instance;
 			}

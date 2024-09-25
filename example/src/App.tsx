@@ -20,7 +20,7 @@ function App() {
 
 function Comp({children}) {
   return (
-    <span>
+    <span onClick={() => console.log(99999)}>
       <i>{`Hello world, ${children}`}</i>
     </span>
   )
