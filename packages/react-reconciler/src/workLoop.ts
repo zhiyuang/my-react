@@ -93,7 +93,7 @@ export const completeUnitOfWork = (fiber: FiberNode) => {
 
 		const sibling = node?.sibling;
 		if (sibling) {
-			workInProgress = next;
+			workInProgress = sibling;
 			return;
 		}
 		node = node._return;

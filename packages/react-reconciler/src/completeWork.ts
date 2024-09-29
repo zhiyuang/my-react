@@ -1,3 +1,4 @@
+import { updateFiberProps } from 'react-dom/src/SyntheticEvent';
 import { FiberNode } from './fiber';
 import { Flags } from './fiberFlags';
 import {
@@ -62,6 +63,7 @@ export const completeWork = (workInProgress: FiberNode) => {
 		case WorkTag.HostComponent:
 			if (current !== null && workInProgress.stateNode) {
 				// TODO 更新元素属性
+				updateFiberProps(workInProgress.stateNode, newProps);
 			} else {
 				const instance = createInstance(workInProgress._type, newProps);
 				appendAllChildren(instance, workInProgress);

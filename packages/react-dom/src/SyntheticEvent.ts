@@ -29,7 +29,7 @@ const getEventCallbackNameFromEventType = (
 	}[eventType];
 };
 
-export const updateEventProps = (
+export const updateFiberProps = (
 	node: Element,
 	props: any
 ): PackagedElement => {
